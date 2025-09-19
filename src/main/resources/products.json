@@ -1,0 +1,42 @@
+[
+  {
+    "ProductName": "Amazon Echo Dot (Alexa-enabled smart speaker)",
+    "Price": "$49.99",
+    "Link": "https://www.amazon.com/dp/B09B8W2JQ5"
+  },
+  {
+    "ProductName": "Amazon Echo Show 15 (Kitchen Smart TV)",
+    "Price": "$299.99",
+    "Link": "https://www.amazon.com/dp/B0BCR7M9KX"
+  },
+  {
+    "ProductName": "Amazon Echo Show 5 Smart Display with Alexa",
+    "Price": "$89.99",
+    "Link": "https://www.bestbuy.com/product/amazon-echo-show-5-3rd-generation-5-5-inch-smart-display-with-alexa-charcoal/J39QV8CYLF/sku/6544304?loc=1&extStoreId=48&utm_source=chatgpt.com"
+  },
+  {
+    "ProductName": "Amazon Echo Show 8 (smart display with Alexa)",
+    "Price": "$149.99",
+    "Link": "https://www.amazon.com/dp/B07PF1Y28C"
+  },
+  {
+    "ProductName": "Amazon Echo Pop Smart Speaker with Alexa",
+    "Price": "$39.99",
+    "Link": "https://www.bestbuy.com/product/amazon-echo-pop-1st-generation-smart-speaker-with-alexa-charcoal/J39HW6PJRP/sku/6544302?loc=1&extStoreId=48&utm_source=chatgpt.com"
+  },
+  {
+    "ProductName": "Amazon Echo Hub 8\" Smart Home Control Panel",
+    "Price": "$179.99",
+    "Link": "https://www.homedepot.com/p/Amazon-Echo-Hub-8-in-Smart-Home-Control-Panel-with-Alexa-Compatible-with-Over-140-000-Devices-B0BCR7M9KX/327704954?source=shoppingads&locale=en-US&utm_source=chatgpt.com"
+  },
+  {
+    "ProductName": "Amazon Echo Spot Smart Alarm Clock",
+    "Price": "$79.99",
+    "Link": "https://www.target.com/p/amazon-echo-spot-smart-alarm-clock-with-vibrant-sound-and-alexa-2024-release-glacier-white/-/A-91517246?TCID=OGS&AFID=google&CPNG=Electronics&adgroup=56-16&utm_source=chatgpt.com"
+  },
+  {
+    "ProductName": "Amazon Fire HD 10 Tablet",
+    "Price": "$139.99",
+    "Link": "https://www.amazon.com/dp/B08BX7FV5L"
+  }
+]

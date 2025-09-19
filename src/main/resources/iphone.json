@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "name": "iPhone 15 Pro",
+    "price": 999,
+    "link": "https://www.amazon.com/dp/B0BDK4SXYF"
+  },
+  {
+    "id": 2,
+    "name": "iPhone 15 Pro Max",
+    "price": 1199,
+    "link": "https://www.amazon.com/dp/B0BDK4SXYG"
+  },
+  {
+    "id": 3,
+    "name": "iPhone 15",
+    "price": 799,
+    "link": "https://www.amazon.com/dp/B0BDK4SXYH"
+  },
+  {
+    "id": 4,
+    "name": "iPhone 15 Plus",
+    "price": 899,
+    "link": "https://www.amazon.com/dp/B0BDK4SXYJ"
+  },
+  {
+    "id": 5,
+    "name": "iPhone 14 Pro",
+    "price": 899,
+    "link": "https://www.amazon.com/dp/B09V4XJ3K5"
+  },
+  {
+    "id": 6,
+    "name": "iPhone 14 Pro Max",
+    "price": 1099,
+    "link": "https://www.amazon.com/dp/B09V4XJ3K6"
+  },
+  {
+    "id": 7,
+    "name": "iPhone 14",
+    "price": 699,
+    "link": "https://www.amazon.com/dp/B09V4XJ3K7"
+  },
+  {
+    "id": 8,
+    "name": "iPhone 14 Plus",
+    "price": 799,
+    "link": "https://www.amazon.com/dp/B09V4XJ3K8"
+  },
+  {
+    "id": 9,
+    "name": "iPhone 13",
+    "price": 599,
+    "link": "https://www.amazon.com/dp/B09V3HNZK5"
+  },
+  {
+    "id": 10,
+    "name": "iPhone 13 Mini",
+    "price": 499,
+    "link": "https://www.amazon.com/dp/B09V3HNZK6"
+  }
+]

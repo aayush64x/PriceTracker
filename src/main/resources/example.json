@@ -1,0 +1,97 @@
+[
+  {
+    "ProductName": "Apple iPhone 15",
+    "Price": "$799.00",
+    "Link": "https://www.apple.com/shop/buy-iphone/iphone-15"
+  },
+  {
+    "ProductName": "Sony WH-1000XM5 Noise Canceling Wireless Headphones",
+    "Price": "$299.99",
+    "Link": "https://electronics.sony.com/audio/headphones/headband/p/wh1000xm5-b"
+  },
+  {
+    "ProductName": "YETI Rambler 20 oz Tumbler with MagSlider Lid",
+    "Price": "$28.00",
+    "Link": "https://www.yeti.com/drinkware/tumblers/rambler-20oz.html"
+  },
+  {
+    "ProductName": "Chanel No 5 Eau De Parfum Spray",
+    "Price": "$176.00",
+    "Link": "https://www.chanel.com/us/fragrance/p/125530/n5-eau-de-parfum-spray/"
+  },
+  {
+    "ProductName": "Restored Apple iPhone 15 Plus",
+    "Price": "$535.50",
+    "Link": "https://www.walmart.com/ip/Apple-iPhone-15-Plus-128GB-Black-Unlocked-Renewed/123456789"
+  },
+  {
+    "ProductName": "Sony WH-1000XM6 Wireless Noise Canceling Headphones",
+    "Price": "$379.99",
+    "Link": "https://www.sony.com/electronics/headphones/wh-1000xm6"
+  },
+  {
+    "ProductName": "YETI Rambler Stackable Cup",
+    "Price": "$30.00",
+    "Link": "https://www.yeti.com/drinkware/tumblers/rambler-stackable-20oz.html"
+  },
+  {
+    "ProductName": "Chanel No 5 Eau De Toilette Spray",
+    "Price": "$116.00",
+    "Link": "https://www.chanel.com/us/fragrance/p/105455/n5-eau-de-toilette-spray/"
+  },
+  {
+    "ProductName": "Personalized YETI Tumbler - Basketball Coach Gift",
+    "Price": "$62.00",
+    "Link": "https://www.etsy.com/listing/1421907621/personalized-yeti-tumbler-basketball"
+  },
+  {
+    "ProductName": "Apple iPhone 15 Plus 512GB Pink",
+    "Price": "$0.00 now +$45.80/mo",
+    "Link": "https://www.apple.com/us/xc/product/MU043?cppart=TMOBILE_IPHONE15"
+  },
+  {
+    "ProductName": "YETI Rambler Travel Mug",
+    "Price": "$38.00",
+    "Link": "https://www.yeti.com/drinkware/tumblers/rambler-20oz-travel-mug.html"
+  },
+  {
+    "ProductName": "Chanel N5 Eau Premiere Spray",
+    "Price": "$110.00",
+    "Link": "https://www.chanel.com/us/fragrance/p/125530/n5-eau-de-parfum-spray/"
+  },
+  {
+    "ProductName": "Apple AirPods Pro (2nd Generation)",
+    "Price": "$249.00",
+    "Link": "https://www.apple.com/airpods-pro/"
+  },
+  {
+    "ProductName": "Bose QuietComfort 45 Noise Cancelling Headphones",
+    "Price": "$329.00",
+    "Link": "https://www.bose.com/en_us/products/headphones/over_ear_headphones/quietcomfort-45.html"
+  },
+  {
+    "ProductName": "Hydro Flask 32 oz Wide Mouth Bottle",
+    "Price": "$49.95",
+    "Link": "https://www.hydroflask.com/32-oz-wide-mouth-bottle"
+  },
+  {
+    "ProductName": "Jo Malone London English Pear & Freesia Cologne",
+    "Price": "$140.00",
+    "Link": "https://www.jomalone.com/product/11001/11003/fragrance/colognes/english-pear-freesia-cologne"
+  },
+  {
+    "ProductName": "Samsung Galaxy S23 Ultra",
+    "Price": "$1,199.99",
+    "Link": "https://www.samsung.com/us/smartphones/galaxy-s23-ultra/"
+  },
+  {
+    "ProductName": "Sony WH-1000XM4 Wireless Noise Canceling Headphones",
+    "Price": "$348.00",
+    "Link": "https://electronics.sony.com/audio/headphones/headband/p/wh1000xm4-b"
+  },
+  {
+    "ProductName": "Contigo AUTOSEAL West Loop Travel Mug",
+    "Price": "$22.99",
+    "Link": "https://www.contigo.com/product/auto-seal-west-loop-travel-mug"
+  }
+]
