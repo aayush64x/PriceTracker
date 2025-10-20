@@ -10,14 +10,21 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-    
-    /*
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/home", "/products", "/api/register", "register").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/home",
+                                "/products",
+                                "/api/**",
+                                "register"
+                                )
+                        .permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -29,6 +36,6 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-     */
+
 
 }

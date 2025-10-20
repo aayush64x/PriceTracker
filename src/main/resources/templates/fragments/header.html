@@ -1,0 +1,20 @@
+<header th:fragment="siteHeader" class="header">
+    <div class="header-left">
+        <div class="logo">
+            PriceTracker
+        </div>
+        <div class="search-bar">
+            <form id="search-form" th:action="@{/search}" method="get">
+                <input type="text" id="search-box" name="keyword" placeholder="Find Products" required>
+                <button type="submit" id="search-button">Search</button>
+            </form>
+        </div>
+    </div>
+    <div class="header-right">
+        <ul class="nav-links">
+            <li><a th:href="@{/watches}">Your Price Watches</a></li>
+        </ul>
+        <span class="user-icon">&#x1F464;</span>
+    </div>
+    <script th:href="@{/js/search.js}"></script>
+</header>

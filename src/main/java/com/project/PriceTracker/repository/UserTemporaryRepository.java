@@ -1,13 +1,12 @@
 package com.project.PriceTracker.repository;
 
-import com.project.PriceTracker.model.Product;
+import com.project.PriceTracker.model.UserTemporary;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Integer> {
-    Optional<Product> findByASIN(String ASIN);
+public interface UserTemporaryRepository extends JpaRepository<UserTemporary, Integer> {
+    Optional<UserTemporary> findByEmail(String email);
 }
-

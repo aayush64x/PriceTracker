@@ -1,50 +1,22 @@
 package com.project.PriceTracker.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.sql.Timestamp;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductDTO {
-
     private int id;
+    private String ASIN;
     private String productName;
-    private String price;
-    private String Link;
-
-    public ProductDTO(){};
-
-    public ProductDTO(int id, String productName, String price, String link) {
-        this.id = id;
-        this.productName = productName;
-        this.price = price;
-        Link = link;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
-
-    public String getPrice() {
-        return price;
-    }
-
-    public void setPrice(String price) {
-        this.price = price;
-    }
-
-    public String getLink() {
-        return Link;
-    }
-
-    public void setLink(String link) {
-        Link = link;
-    }
+    private Double price;
+    private String link;
+    private String imageURL;
+    private Timestamp timeStamp;
+    private String productGroup;
+    private String category;
 }

@@ -16,6 +16,16 @@ services:
       - pricetracker-network
     restart: unless-stopped
 
+  redis:
+    container_name: redis-springboot
+    image: redis:8.2.1
+    ports:
+      - "6479:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - pricetracker-network
+    restart: unless-stopped
 
 networks:
   pricetracker-network:

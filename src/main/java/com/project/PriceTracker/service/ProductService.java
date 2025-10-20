@@ -1,22 +1,24 @@
 package com.project.PriceTracker.service;
 
-import com.project.PriceTracker.model.DummyProductList;
-import com.project.PriceTracker.repository.ScraperRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ProductService {
 
-    @Autowired
-    private ScraperRepository repository;
+    private final ProductCacheService cacheService;
 
-    public ProductService(ScraperRepository repository){
-        this.repository = repository;
+
+    public ProductService(ProductCacheService cacheService) {
+        this.cacheService = cacheService;
+
     }
-    public List<DummyProductList> getAllProducts(){
-        return repository.findAll();
+
+    /*
+    public List<ProductDTO> searchProducts(String keyword){
+        List<Product> cachedProducts = scraperService.getCachedProducts(keyword);
+        if ca
+        return scrapedProducts;
     }
+    */
+
 }

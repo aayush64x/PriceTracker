@@ -16,11 +16,14 @@ public class Product {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private int productId;
+    private String ASIN;
     private String productName;
-    private String productPrice;
+    private Double productPrice;
     private String link;
     private String imageURL;
-    private Timestamp lastChecked;
+    private String category;
+    private Timestamp timestamp;
+    private String productGroup;
 
 
 

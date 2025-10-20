@@ -24,22 +24,16 @@ public class WebController {
         return "index";
     }
 
-
+    @GetMapping("/products")
+    public String products(){
+        return "products";
+    }
     @GetMapping("/register")
     public String register(){
         return "register";
     }
-    @GetMapping("/api/watchlist")
+    @GetMapping("/watchlist")
     public String watchlist(){
         return "watchlist";
     }
-    @GetMapping("/hello World")
-    public String hello(){
-        return "hello world";
-    }
-
-
-
-
-
 }
