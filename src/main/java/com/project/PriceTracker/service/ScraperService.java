@@ -31,27 +31,30 @@ public class ScraperService {
             );
             Page page = browser.newPage();
 
-            // Navigate and search
+            // Navigate to Amazon and search
             page.navigate("https://www.amazon.com");
             page.fill("#twotabsearchtextbox", keyword);
             page.click("#nav-search-submit-button");
 
-            // Wait for results
+            // Wait for search results
             page.waitForSelector("div.s-main-slot");
 
-            // Scroll down to load more items
+            // Scroll a few times to load more
             for (int i = 0; i < 5; i++) {
                 page.mouse().wheel(0, 1000);
                 page.waitForTimeout(1000);
             }
 
-            // Get the final HTML content
+            // Parse HTML content
             String html = page.content();
             Document doc = Jsoup.parse(html);
-
             Elements items = doc.select("div.s-main-slot div[data-component-type='s-search-result']");
 
-            for (Element item : items) {
+            System.out.println("Found " + items.size() + " results. Showing first 10.");
+
+            int limit = Math.min(items.size(), 10);
+            for (int i = 0; i < limit; i++) {
+                Element item = items.get(i);
                 Product product = new Product();
 
                 // ASIN
@@ -62,17 +65,18 @@ public class ScraperService {
                 Element titleEl = item.selectFirst("h2 span");
                 product.setProductName(titleEl != null ? titleEl.text() : "N/A");
 
-                // Link
+                // Link - build canonical Amazon link
+                String href = "";
                 Element linkEl = item.selectFirst("h2 a");
                 if (linkEl != null) {
-                    String href = linkEl.attr("href");
-                    if (!href.startsWith("http")) {
-                        href = "https://www.amazon.com" + href;
+                    String rawHref = linkEl.attr("href");
+                    if (asin != null && !asin.isEmpty()) {
+                        href = "https://www.amazon.com/dp/" + asin;
+                    } else if (rawHref != null && !rawHref.isEmpty()) {
+                        href = rawHref.startsWith("http") ? rawHref : "https://www.amazon.com" + rawHref;
                     }
-                    product.setLink(href);
-                } else {
-                    product.setLink("");
                 }
+                product.setLink(href);
 
                 // Price
                 Element priceEl = item.selectFirst("span.a-price > span.a-offscreen");
@@ -91,20 +95,29 @@ public class ScraperService {
                 Element imgEl = item.selectFirst("img.s-image");
                 product.setImageURL(imgEl != null ? imgEl.attr("src") : "");
 
-                // Category (try to find actual classification or leave blank)
+                // Category
                 Element categoryEl = item.selectFirst("span.a-size-base.a-color-base");
                 product.setCategory(categoryEl != null ? categoryEl.text() : "");
 
-                // Product Group (Amazon doesn’t expose — leave blank)
+                // Product Group
                 product.setProductGroup("");
 
                 // Timestamp
                 product.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
                 products.add(product);
+
+                // Debug print
+                System.out.println((i + 1) + ". " + product.getProductName());
+                System.out.println("   ASIN: " + asin);
+                System.out.println("   Link: " + product.getLink());
+                System.out.println("   Price: " + product.getProductPrice());
+                System.out.println("   Image: " + product.getImageURL());
+                System.out.println("--------------------------------------------");
             }
 
             browser.close();
+
         } catch (Exception e) {
             e.printStackTrace();
         }

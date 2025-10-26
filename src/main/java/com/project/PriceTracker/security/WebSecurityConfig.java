@@ -17,15 +17,8 @@ public class WebSecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(
-                                "/",
-                                "/home",
-                                "/products",
-                                "/api/**",
-                                "register"
-                                )
+                        .anyRequest()
                         .permitAll()
-                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .permitAll()

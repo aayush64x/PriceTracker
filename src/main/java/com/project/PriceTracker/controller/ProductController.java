@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "https://localhost:3000")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/products/")
 public class ProductController {
 
@@ -25,7 +25,7 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public List<ProductDTO> searchProducts(@RequestParam String keyword, Model model) {
+    public List<ProductDTO> searchProducts(@RequestParam String keyword) {
         // 1️⃣ Check Redis cache first
         List<Product> cached = cacheService.getCachedProducts(keyword);
         if (!cached.isEmpty()) {
@@ -69,5 +69,21 @@ public class ProductController {
         )).toList();
 
         return dtos;
+    }
+
+    @GetMapping("/product-detail")
+    public ProductDTO getIndividualProduct(@RequestParam String q){
+        Product product = cacheService.getCachedIndividualProduct(q);
+        return new ProductDTO(
+                product.getProductId(),
+                product.getASIN(),
+                product.getProductName(),
+                product.getProductPrice(),
+                product.getLink(),
+                product.getImageURL(),
+                product.getTimestamp(),
+                product.getProductGroup(),
+                product.getCategory()
+        );
     }
 }

@@ -9,7 +9,9 @@ import com.project.PriceTracker.repository.UserTemporaryRepository;
 import com.project.PriceTracker.repository.WatchListTemporaryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,6 +35,7 @@ public class WatchListTemporaryService {
     }
 
     // Find user by email or create
+    @Transactional
     public UserTemporary findOrCreateUser(String email) {
         return userTemporaryRepository.findByEmail(email)
                 .orElseGet(() -> {
@@ -42,20 +45,36 @@ public class WatchListTemporaryService {
                 });
     }
 
-    // Find product by ASIN or create
+    // Find product by ASIN (DB first, then cache) safely
+    @Transactional
     public Product findOrCreateProduct(String ASIN) {
+        // 1️⃣ Check DB first
         Optional<Product> existing = productRepository.findByASIN(ASIN);
-
         if (existing.isPresent()) return existing.get();
 
-        Product cachedProduct = productCacheService.getCacheIndividualProducts(ASIN);
-        if (cachedProduct != null) return productRepository.save(cachedProduct);
+        // 2️⃣ Check Redis cache
+        Product cachedProduct = productCacheService.getCachedIndividualProduct(ASIN);
+        if (cachedProduct != null) {
+            // Reattach a new managed entity using data from cache
+            Product managed = new Product();
+            managed.setASIN(cachedProduct.getASIN());
+            managed.setProductName(cachedProduct.getProductName());
+            managed.setProductPrice(cachedProduct.getProductPrice());
+            managed.setCategory(cachedProduct.getCategory());
+            managed.setImageURL(cachedProduct.getImageURL());
+            managed.setLink(cachedProduct.getLink());
+            managed.setProductGroup(cachedProduct.getProductGroup());
+
+            Product saved = productRepository.save(managed);
+            productCacheService.cacheIndividualProducts(List.of(saved)); // update cache
+            return saved;
+        }
 
         throw new RuntimeException("Product with ASIN " + ASIN + " not found in DB or cache");
     }
 
-
-    // Add watchlist entry
+    // Add watchlist entry safely
+    @Transactional
     public WatchListTemporary addToWatchList(WatchListRequestDTO request) {
         String email = request.getUserEmail();
         String asin = request.getAsin();
@@ -66,10 +85,8 @@ public class WatchListTemporaryService {
         WatchListTemporary watchListTemporary = new WatchListTemporary();
         watchListTemporary.setUserTemporary(user);
         watchListTemporary.setProduct(product);
-
         watchListTemporary.setTargetPrice(request.getTargetPrice());
 
         return watchListRepository.save(watchListTemporary);
     }
 }
-

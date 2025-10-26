@@ -1,6 +1,5 @@
 package com.project.PriceTracker.service;
 
-import com.project.PriceTracker.dto.ProductDTO;
 import com.project.PriceTracker.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,25 +20,24 @@ public class ProductCacheService {
 
     public void cacheProducts(String keyword, List<Product> products){
         String key = "search:" + keyword.trim().toLowerCase();
-        redisTemplate.opsForValue().set(key, products, Duration.ofHours(24)); // cached for 1 day
+        redisTemplate.opsForValue().set(key, products, Duration.ofHours(24));
     }
 
     @SuppressWarnings("unchecked")
     public List<Product> getCachedProducts(String keyword) {
         String key = "search:" + keyword.trim().toLowerCase();
         List<Product> products = (List<Product>) redisTemplate.opsForValue().get(key);
-
-        if (products == null) return List.of();
-
-        return products;
+        return products == null ? List.of() : products;
     }
+
     public void cacheIndividualProducts(List<Product> products){
         for (Product product : products){
             String key = "product:" + product.getASIN().trim().toUpperCase();
             redisTemplate.opsForValue().set(key, product, Duration.ofHours(24));
         }
     }
-    public Product getCacheIndividualProducts(String ASIN){
+
+    public Product getCachedIndividualProduct(String ASIN){
         String key = "product:" + ASIN.trim().toUpperCase();
         return (Product) redisTemplate.opsForValue().get(key);
     }
