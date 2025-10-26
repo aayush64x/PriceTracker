@@ -1,11 +1,15 @@
 package com.project.PriceTracker.controller;
 
+import com.project.PriceTracker.dto.ProductDTO;
 import com.project.PriceTracker.dto.WatchListRequestDTO;
 import com.project.PriceTracker.service.UserTemporaryService;
 import com.project.PriceTracker.service.WatchListTemporaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/watchlist/")
@@ -28,6 +32,12 @@ public class WatchListController {
         watchListTemporaryService.addToWatchList(request);
         return ResponseEntity.ok("Added to watchList");
     }
+
+    @GetMapping("/saved-products")
+    public List<ProductDTO> getProductSavedToWatchList(@RequestParam String email){
+        return watchListTemporaryService.getSavedProducts(email);
+    }
+
 
 
 

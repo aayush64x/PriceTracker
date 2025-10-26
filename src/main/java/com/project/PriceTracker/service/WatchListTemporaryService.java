@@ -1,5 +1,6 @@
 package com.project.PriceTracker.service;
 
+import com.project.PriceTracker.dto.ProductDTO;
 import com.project.PriceTracker.dto.WatchListRequestDTO;
 import com.project.PriceTracker.model.Product;
 import com.project.PriceTracker.model.UserTemporary;
@@ -11,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class WatchListTemporaryService {
@@ -89,4 +92,27 @@ public class WatchListTemporaryService {
 
         return watchListRepository.save(watchListTemporary);
     }
+
+    public List<ProductDTO> getSavedProducts(String email) {
+        // Get all watchlist entries for the user
+        List<WatchListTemporary>   watchListEntries = watchListRepository.findByUserTemporaryEmail(email);
+        List<ProductDTO> productDTOList = new ArrayList<>();
+        for (WatchListTemporary productInWatchListTemporary : watchListEntries){
+            Product product = productInWatchListTemporary.getProduct();
+            ProductDTO productDTO = new ProductDTO(
+                    product.getProductId(),
+                    product.getASIN(),
+                    product.getProductName(),
+                    product.getProductPrice(),
+                    product.getLink(),
+                    product.getImageURL(),
+                    product.getTimestamp(),
+                    product.getProductGroup(),
+                    product.getCategory()
+            );
+            productDTOList.add(productDTO);
+        }
+        return productDTOList;
+    }
+
 }
