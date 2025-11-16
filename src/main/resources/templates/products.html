@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Price Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal form {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            position: relative;
+        }
+        .modal .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .modal input, .modal button {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+        }
+        .modal button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+        .modal button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/header :: siteHeader"></div>
+
+<div class="products-section">
+    <h2 th:text="'Search results for: ' + ${keyword}"></h2>
+
+    <div th:if="${#lists.isEmpty(products)}">
+        <p>No products found.</p>
+    </div>
+
+    <div th:each="product : ${products}" class="product-card" th:attr="data-asin=${product.ASIN}">
+        <img th:src="${product.imageURL}" alt="Product image" width="100"/>
+        <h3 th:text="${product.productName}"></h3>
+        <p>Price: <span th:text="${product.price != null} ? ${product.price} : 'N/A'"></span></p>
+        <p>ASIN: <span th:text="${product.ASIN}"></span></p>
+        <p>Category: <span th:text="${product.category}"></span></p>
+        <a th:href="${product.link}" target="_blank">View on Amazon</a>
+        <button>Add to Watchlist</button>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="watchlistModal" class="modal">
+    <form method="post" th:action="@{/watchlist/add}">
+        <input type="hidden" name="asin" id="asinField"/>
+        <label>Email:</label>
+        <input type="email" name="email" required/>
+        <label>Target Price:</label>
+        <input type="number" step="0.01" name="targetPrice" required/>
+        <button type="submit">Save</button>
+    </form>
+</div>
+
+<footer>
+    © 2025 PriceTracker. All rights reserved.
+</footer>
+
+<script>
+    const buttons = document.querySelectorAll(".product-card button");
+    const modal = document.getElementById("watchlistModal");
+    const asinField = document.getElementById("asinField");
+
+    // Close button
+    const closeBtn = document.createElement("span");
+    closeBtn.innerHTML = "&times;";
+    closeBtn.classList.add("close");
+    modal.querySelector("form").prepend(closeBtn);
+    closeBtn.onclick = () => modal.style.display = "none";
+
+    // Open modal and fill ASIN
+    buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const productCard = btn.closest(".product-card");
+            asinField.value = productCard.dataset.asin;
+            modal.style.display = "block";
+        });
+    });
+
+    // Close modal when clicking outside
+    window.onclick = (event) => {
+        if(event.target === modal) modal.style.display = "none";
+    }
+
+    // AJAX form submission
+    const form = modal.querySelector("form");
+    form.addEventListener("submit", function(event){
+        event.preventDefault();
+
+        const formData = new FormData(form);
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.text())
+        .then(data => {
+            alert("Added to Watchlist!");
+            modal.style.display = "none";
+            form.reset();
+        })
+        .catch(err => console.error(err));
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Price Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+
+</head>
+<body>
+    <div th:replace="fragments/header :: siteHeader"></div>
+
+<section class="hero">
+    <h1>Track Prices. Save Money. Shop Smart.</h1>
+    <p>PriceTracker helps you monitor product prices across stores and alerts you when it’s the best time to buy.</p>
+    <a href="/register" class="btn btn-primary">Start Tracking</a>
+    <a href="#learn" class="btn btn-outline">Learn More</a>
+</section>
+
+<section id="features" class="features">
+    <div class="feature">
+        <h3>Price Alerts</h3>
+        <p>Get instant notifications when product prices drop below your target.</p>
+    </div>
+    <div class="feature">
+        <h3>Multi-Store Support</h3>
+        <p>Track products from your favorite online shops in one dashboard.</p>
+    </div>
+    <div class="feature">
+        <h3>Smart Insights</h3>
+        <p>Analyze price history to know when it’s the best time to buy.</p>
+    </div>
+</section>
+
+<footer>
+    © 2025 PriceTracker. All rights reserved.
+</footer>
+</body>
+</html>
