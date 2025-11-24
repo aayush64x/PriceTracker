@@ -61,7 +61,7 @@ public class TestController {
             WatchListTemporary firstWatcher = watchers.get(0);
             Double targetPrice = firstWatcher.getTargetPrice();
             response.put("targetPrice", targetPrice);
-            response.put("watcherEmail", firstWatcher.getUserTemporary().getEmail());
+            response.put("watcherEmail", firstWatcher.getUsers().getEmail());
 
             // Set price to 80% of target (guaranteed to trigger)
             Double testPrice = targetPrice * 0.8;
@@ -213,7 +213,7 @@ public class TestController {
             List<Map<String, Object>> watcherDetails = watchers.stream().map(w -> {
                 Map<String, Object> detail = new HashMap<>();
                 detail.put("watchListId", w.getWatchListId());
-                detail.put("userEmail", w.getUserTemporary().getEmail());
+                detail.put("userEmail", w.getUsers().getEmail());
                 detail.put("targetPrice", w.getTargetPrice());
                 detail.put("notificationEnabled", w.getNotificationEnabled());
                 detail.put("notificationSent", w.getNotificationSent());
@@ -259,7 +259,7 @@ public class TestController {
             response.put("status", "SUCCESS");
             response.put("message", "Notification state reset. User will be notified on next price check.");
             response.put("watchListId", watchListId);
-            response.put("userEmail", watchList.getUserTemporary().getEmail());
+            response.put("userEmail", watchList.getUsers().getEmail());
 
             return ResponseEntity.ok(response);
 

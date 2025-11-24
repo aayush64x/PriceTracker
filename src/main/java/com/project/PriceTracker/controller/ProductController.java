@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
-@RequestMapping("/api/products/")
+@RequestMapping("/public/products")
 public class ProductController {
 
     private final ScraperService scraperService;

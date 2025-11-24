@@ -1,7 +1,7 @@
 package com.project.PriceTracker.repository;
 
 import com.project.PriceTracker.model.Product;
-import com.project.PriceTracker.model.UserTemporary;
+import com.project.PriceTracker.model.Users;
 import com.project.PriceTracker.model.WatchListTemporary;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -24,17 +24,17 @@ public interface WatchListTemporaryRepository extends JpaRepository<WatchListTem
     /**
      * Find all watchlist entries for a user
      */
-    List<WatchListTemporary> findByUserTemporary(UserTemporary user);
-
-    /**
-     * Find watchlist entry by product and user (for unique constraint check)
-     */
-    Optional<WatchListTemporary> findByProductAndUserTemporary(Product product, UserTemporary user);
+    List<WatchListTemporary> findByUsers(Users user);
 
     /**
      * Find all watchlist entries for a user by email
      */
-    List<WatchListTemporary> findByUserTemporary_Email(String email);
+    List<WatchListTemporary> findByUsersEmail(String email);
+
+    /**
+     * Find watchlist entry by product and user (for unique constraint check)
+     */
+    Optional<WatchListTemporary> findByProductAndUsers(Product product, Users user);
 
     /**
      * Find enabled watchlist entries for a product
@@ -53,7 +53,12 @@ public interface WatchListTemporaryRepository extends JpaRepository<WatchListTem
     /**
      * Delete all watchlist entries for a user
      */
-    void deleteByUserTemporary(UserTemporary user);
+    void deleteByUsers(Users user);
+
+    /**
+     * Delete all watchlist entries for a user by email
+     */
+    void deleteByUsersEmail(String email);
 
     /**
      * Delete all watchlist entries for a product
@@ -63,7 +68,12 @@ public interface WatchListTemporaryRepository extends JpaRepository<WatchListTem
     /**
      * Delete specific watchlist entry by product and user
      */
-    void deleteByProductAndUserTemporary(Product product, UserTemporary user);
+    void deleteByProductAndUsers(Product product, Users user);
+
+    /**
+     * Delete specific watchlist entry by ASIN and user email
+     */
+    void deleteByProductASINAndUsersEmail(String asin, String email);
 
     // ========================================
     // COUNT/EXISTS METHODS
@@ -72,17 +82,25 @@ public interface WatchListTemporaryRepository extends JpaRepository<WatchListTem
     /**
      * Count watchlist items for a user
      */
-    long countByUserTemporary(UserTemporary user);
+    long countByUsers(Users user);
+
+    /**
+     * Count watchlist items for a user by email
+     */
+    long countByUsersEmail(String email);
 
     /**
      * Check if product is in user's watchlist
      */
-    boolean existsByProductAndUserTemporary(Product product, UserTemporary user);
+    boolean existsByProductAndUsers(Product product, Users user);
+
+    /**
+     * Check if product is in user's watchlist by email and ASIN
+     */
+    boolean existsByProductASINAndUsersEmail(String asin, String email);
 
     /**
      * Count total watchlist entries for a product
      */
     long countByProduct(Product product);
-
-    List<WatchListTemporary> findByUserTemporaryEmail(String email);
 }

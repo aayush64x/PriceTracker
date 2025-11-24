@@ -21,6 +21,7 @@ public class WatchListController {
 
     private WatchListTemporaryService watchListTemporaryService;
     private UserTemporaryService userTemporaryService;
+
     private NotificationService notificationService;
 
     @Autowired

@@ -1,28 +1,29 @@
 package com.project.PriceTracker.security;
 
-import com.project.PriceTracker.model.User;
+import com.project.PriceTracker.model.Users;
 import com.project.PriceTracker.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Service
 public class MyUserDetailService implements UserDetailsService {
 
     @Autowired
-    private UserRepository repository;
+    private UserRepository userRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<User> user = repository.findByEmail(email);
-        if(user.isPresent()){
+    private MyUserPrincipal userPrincipal;
 
-        }else{
-            throw new UsernameNotFoundException(email);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Users user = userRepository.findByEmail(username);
+        if (user == null){
+            throw new UsernameNotFoundException("User not found with username "+username);
         }
-        return null;
+        return new MyUserPrincipal(user);
     }
 
 

@@ -2,14 +2,8 @@ package com.project.PriceTracker.service;
 
 import com.project.PriceTracker.dto.ProductDTO;
 import com.project.PriceTracker.dto.WatchListRequestDTO;
-import com.project.PriceTracker.model.PriceHistory;
-import com.project.PriceTracker.model.Product;
-import com.project.PriceTracker.model.UserTemporary;
-import com.project.PriceTracker.model.WatchListTemporary;
-import com.project.PriceTracker.repository.PriceHistoryRepository;
-import com.project.PriceTracker.repository.ProductRepository;
-import com.project.PriceTracker.repository.UserTemporaryRepository;
-import com.project.PriceTracker.repository.WatchListTemporaryRepository;
+import com.project.PriceTracker.model.*;
+import com.project.PriceTracker.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,43 +11,42 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class WatchListTemporaryService {
 
     private final WatchListTemporaryRepository watchListRepository;
     private final ProductRepository productRepository;
-    private final UserTemporaryRepository userTemporaryRepository;
     private final PriceHistoryRepository priceHistoryRepository;
     private final ProductCacheService productCacheService;
+    private final UserRepository userRepository;
 
     @Autowired
     public WatchListTemporaryService(
             WatchListTemporaryRepository watchListRepository,
             ProductRepository productRepository,
-            UserTemporaryRepository userTemporaryRepository,
+            UserRepository userRepository,
             ProductCacheService productCacheService,
-            PriceHistoryRepository priceHistoryRepository) {
+            PriceHistoryRepository priceHistoryRepository
+    ) {
         this.watchListRepository = watchListRepository;
         this.productRepository = productRepository;
-        this.userTemporaryRepository = userTemporaryRepository;
+        this.userRepository = userRepository;
         this.productCacheService = productCacheService;
         this.priceHistoryRepository = priceHistoryRepository;
     }
 
-    // Find user by email or create
-    @Transactional
-    public UserTemporary findOrCreateUser(String email) {
-        return userTemporaryRepository.findByEmail(email)
-                .orElseGet(() -> {
-                    UserTemporary newUser = new UserTemporary();
-                    newUser.setEmail(email);
-                    return userTemporaryRepository.save(newUser);
-                });
+    // Find user by email or throw exception
+    @Transactional(readOnly = true)
+    public Users findOrCreateUser(String email) {
+        Users user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found with email: " + email);
+        }
+        return user;
     }
 
-    // Find product by ASIN (DB first, then cache) safely
+    // Find product by ASIN (DB first, then cache)
     @Transactional
     public Product findOrCreateProduct(String ASIN) {
         // 1️⃣ Check DB first
@@ -63,7 +56,7 @@ public class WatchListTemporaryService {
         // 2️⃣ Check Redis cache
         Product cachedProduct = productCacheService.getCachedIndividualProduct(ASIN);
         if (cachedProduct != null) {
-            // Reattach a new managed entity using data from cache
+            // Create new managed entity using data from cache
             Product managed = new Product();
             managed.setASIN(cachedProduct.getASIN());
             managed.setProductName(cachedProduct.getProductName());
@@ -81,34 +74,43 @@ public class WatchListTemporaryService {
         throw new RuntimeException("Product with ASIN " + ASIN + " not found in DB or cache");
     }
 
-    // Add watchlist entry safely
+    // Add watchlist entry
     @Transactional
     public WatchListTemporary addToWatchList(WatchListRequestDTO request) {
-        String email = request.getUserEmail();
+        String email = request.getEmail();
         String asin = request.getAsin();
 
-        UserTemporary user = findOrCreateUser(email);
+        Users user = findOrCreateUser(email);
         Product product = findOrCreateProduct(asin);
 
+        // Check if already in watchlist
+        Optional<WatchListTemporary> existing = watchListRepository.findByProductAndUsers(product, user);
+        if (existing.isPresent()) {
+            throw new IllegalArgumentException("Product already in watchlist");
+        }
+
         WatchListTemporary watchListTemporary = new WatchListTemporary();
-        watchListTemporary.setUserTemporary(user);
+        watchListTemporary.setUsers(user);
         watchListTemporary.setProduct(product);
         watchListTemporary.setTargetPrice(request.getTargetPrice());
 
+        // Create initial price history entry
         PriceHistory priceHistory = new PriceHistory();
-        priceHistory.setProduct(product);                     // link to the product
-        priceHistory.setProductPrice(product.getProductPrice()); // store current price
+        priceHistory.setProduct(product);
+        priceHistory.setProductPrice(product.getProductPrice());
         priceHistoryRepository.save(priceHistory);
 
         return watchListRepository.save(watchListTemporary);
     }
 
+    // Get all products in user's watchlist
+    @Transactional(readOnly = true)
     public List<ProductDTO> getSavedProducts(String email) {
-        // Get all watchlist entries for the user
-        List<WatchListTemporary>   watchListEntries = watchListRepository.findByUserTemporaryEmail(email);
+        List<WatchListTemporary> watchListEntries = watchListRepository.findByUsersEmail(email);
         List<ProductDTO> productDTOList = new ArrayList<>();
-        for (WatchListTemporary productInWatchListTemporary : watchListEntries){
-            Product product = productInWatchListTemporary.getProduct();
+
+        for (WatchListTemporary entry : watchListEntries) {
+            Product product = entry.getProduct();
             ProductDTO productDTO = new ProductDTO(
                     product.getProductId(),
                     product.getASIN(),
@@ -122,10 +124,35 @@ public class WatchListTemporaryService {
             );
             productDTOList.add(productDTO);
         }
+
         return productDTOList;
     }
 
+    // Delete from watchlist by watchListId
+    @Transactional
+    public void deleteFromWatchList(Integer watchListId) {
+        WatchListTemporary watchList = watchListRepository.findById(watchListId)
+                .orElseThrow(() -> new IllegalArgumentException("Watchlist item not found with ID: " + watchListId));
 
+        watchListRepository.delete(watchList);
+    }
+
+    // Delete from watchlist by email and ASIN
+    @Transactional
+    public void deleteFromWatchListByEmailAndAsin(String email, String asin) {
+        Users user = findOrCreateUser(email);
+        Product product = productRepository.findByASIN(asin)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with ASIN: " + asin));
+
+        WatchListTemporary watchList = watchListRepository.findByProductAndUsers(product, user)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Watchlist entry not found for user: " + email + " and product: " + asin));
+
+        watchListRepository.delete(watchList);
+    }
+
+    // Update target price
+    @Transactional
     public WatchListTemporary updateTargetPrice(Integer watchListId, Double newTargetPrice) {
         WatchListTemporary watchList = watchListRepository.findById(watchListId)
                 .orElseThrow(() -> new IllegalArgumentException("Watchlist item not found with ID: " + watchListId));
@@ -137,47 +164,8 @@ public class WatchListTemporaryService {
         watchList.setTargetPrice(newTargetPrice);
 
         // Reset notification if target price changed
-        // This allows user to get notified if new target is met
         watchList.resetNotification();
 
         return watchListRepository.save(watchList);
     }
-
-    /**
-     * Check if product is in user's watchlist
-     */
-    public boolean isProductInWatchList(String email, String asin) {
-        try {
-            UserTemporary user = userTemporaryRepository.findByEmail(email).orElse(null);
-            Product product = productRepository.findByASIN(asin).orElse(null);
-
-            if (user == null || product == null) {
-                return false;
-            }
-
-            return watchListRepository.findByProductAndUserTemporary(product, user).isPresent();
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * Get watchlist item by ID
-     */
-    public WatchListTemporary getWatchListById(Integer watchListId) {
-        return watchListRepository.findById(watchListId)
-                .orElseThrow(() -> new IllegalArgumentException("Watchlist item not found with ID: " + watchListId));
-    }
-
-    /**
-     * Count total watchlist items for a user
-     */
-    public long countUserWatchListItems(String email) {
-        UserTemporary user = userTemporaryRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            return 0;
-        }
-        return watchListRepository.countByUserTemporary(user);
-    }
-
 }

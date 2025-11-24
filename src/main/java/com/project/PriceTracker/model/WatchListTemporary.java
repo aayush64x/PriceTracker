@@ -28,8 +28,8 @@ public class WatchListTemporary {
     private Product product;
 
     @ManyToOne
-    @JoinColumn(name="userTemporaryId")
-    private UserTemporary userTemporary;
+    @JoinColumn(name="userId")
+    private Users users;
 
     @Column(name = "date_added", columnDefinition = "TIMESTAMP")
     @CreationTimestamp

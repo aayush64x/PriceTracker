@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WatchListRequestDTO {
-    private String userEmail;
+    private String email;
     private Double targetPrice; // Watchlist target price
     private String asin;
 }

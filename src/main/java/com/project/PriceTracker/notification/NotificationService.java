@@ -51,7 +51,7 @@ public class NotificationService {
     private void sendNotification(WatchListTemporary watchList, Product product, Double currentPrice) {
         try {
             // Get user email
-            String userEmail = watchList.getUserTemporary().getEmail();
+            String userEmail = watchList.getUsers().getEmail();
 
             // Send email
             emailService.sendPriceAlert(
@@ -111,6 +111,6 @@ public class NotificationService {
      * Get all watchlist entries for a user
      */
     public List<WatchListTemporary> getUserWatchList(String email) {
-        return watchListRepository.findByUserTemporary_Email(email);
+        return watchListRepository.findByUsersEmail(email);
     }
 }
