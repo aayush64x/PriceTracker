@@ -1,5 +1,6 @@
 package com.project.PriceTracker.controller;
 
+import com.project.PriceTracker.dto.PriceHistoryDTO;
 import com.project.PriceTracker.dto.ProductDTO;
 import com.project.PriceTracker.model.Product;
 import com.project.PriceTracker.service.ProductCacheService;
@@ -84,4 +85,5 @@ public class ProductController {
                 product.getCategory()
         );
     }
+
 }

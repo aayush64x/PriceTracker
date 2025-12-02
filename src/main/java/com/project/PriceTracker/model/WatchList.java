@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Table(
         uniqueConstraints = @UniqueConstraint(columnNames = {"asin", "userTemporaryId"})
 )
-public class WatchListTemporary {
+public class WatchList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int watchListId;

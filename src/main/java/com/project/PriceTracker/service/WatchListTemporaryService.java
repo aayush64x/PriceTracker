@@ -2,15 +2,19 @@ package com.project.PriceTracker.service;
 
 import com.project.PriceTracker.dto.ProductDTO;
 import com.project.PriceTracker.dto.WatchListRequestDTO;
+import com.project.PriceTracker.dto.WatchlistItemDTO;
 import com.project.PriceTracker.model.*;
 import com.project.PriceTracker.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class WatchListTemporaryService {
@@ -74,9 +78,44 @@ public class WatchListTemporaryService {
         throw new RuntimeException("Product with ASIN " + ASIN + " not found in DB or cache");
     }
 
+    /**
+     * Add a price history entry for a product with current timestamp
+     */
+    private void addPriceHistoryEntry(Product product) {
+        // Check if a price history entry already exists for today
+        // to avoid duplicate entries when adding to watchlist multiple times in one day
+        List<PriceHistory> existingHistory = priceHistoryRepository.findByProduct_ASIN(product.getASIN());
+
+        // Get today's date (without time component)
+        LocalDateTime today = LocalDateTime.now().toLocalDate().atStartOfDay();
+
+        // Check if there's already an entry for today
+        boolean hasEntryToday = existingHistory.stream()
+                .anyMatch(ph -> {
+                    LocalDateTime entryDate = ph.getDateAdded().toLocalDateTime().toLocalDate().atStartOfDay();
+                    return entryDate.equals(today);
+                });
+
+        // Only add new entry if there's no entry for today
+        if (!hasEntryToday) {
+            PriceHistory priceHistory = PriceHistory.builder()
+                    .product(product)
+                    .productPrice(product.getProductPrice())
+                    .dateAdded(Timestamp.valueOf(LocalDateTime.now()))
+                    .build();
+
+            priceHistoryRepository.save(priceHistory);
+            System.out.println("Added price history entry for ASIN: " + product.getASIN() +
+                    " Price: $" + product.getProductPrice() +
+                    " at " + LocalDateTime.now());
+        } else {
+            System.out.println("Price history entry already exists for today for ASIN: " + product.getASIN());
+        }
+    }
+
     // Add watchlist entry
     @Transactional
-    public WatchListTemporary addToWatchList(WatchListRequestDTO request) {
+    public WatchList addToWatchList(WatchListRequestDTO request) {
         String email = request.getEmail();
         String asin = request.getAsin();
 
@@ -84,32 +123,30 @@ public class WatchListTemporaryService {
         Product product = findOrCreateProduct(asin);
 
         // Check if already in watchlist
-        Optional<WatchListTemporary> existing = watchListRepository.findByProductAndUsers(product, user);
+        Optional<WatchList> existing = watchListRepository.findByProductAndUsers(product, user);
         if (existing.isPresent()) {
             throw new IllegalArgumentException("Product already in watchlist");
         }
 
-        WatchListTemporary watchListTemporary = new WatchListTemporary();
-        watchListTemporary.setUsers(user);
-        watchListTemporary.setProduct(product);
-        watchListTemporary.setTargetPrice(request.getTargetPrice());
+        // Create watchlist entry
+        WatchList watchList = new WatchList();
+        watchList.setUsers(user);
+        watchList.setProduct(product);
+        watchList.setTargetPrice(request.getTargetPrice());
 
-        // Create initial price history entry
-        PriceHistory priceHistory = new PriceHistory();
-        priceHistory.setProduct(product);
-        priceHistory.setProductPrice(product.getProductPrice());
-        priceHistoryRepository.save(priceHistory);
+        // 🎯 Add current price to price history with current timestamp
+        addPriceHistoryEntry(product);
 
-        return watchListRepository.save(watchListTemporary);
+        return watchListRepository.save(watchList);
     }
 
-    // Get all products in user's watchlist
+    // Get all products in user's watchlist (OLD METHOD - kept for backward compatibility)
     @Transactional(readOnly = true)
     public List<ProductDTO> getSavedProducts(String email) {
-        List<WatchListTemporary> watchListEntries = watchListRepository.findByUsersEmail(email);
+        List<WatchList> watchListEntries = watchListRepository.findByUsersEmail(email);
         List<ProductDTO> productDTOList = new ArrayList<>();
 
-        for (WatchListTemporary entry : watchListEntries) {
+        for (WatchList entry : watchListEntries) {
             Product product = entry.getProduct();
             ProductDTO productDTO = new ProductDTO(
                     product.getProductId(),
@@ -128,10 +165,47 @@ public class WatchListTemporaryService {
         return productDTOList;
     }
 
+    /**
+     * NEW METHOD: Get all watchlist items for a user with product details and target price
+     * This returns WatchlistItemDTO which includes both watchlist ID, targetPrice, and all product details
+     */
+    @Transactional(readOnly = true)
+    public List<WatchlistItemDTO> getSavedProductsWithWatchlistInfo(String email) {
+        // Find user by email
+        Users user = findOrCreateUser(email);
+
+        // Get all watchlist entries for this user
+        List<WatchList> watchlistEntries = watchListRepository.findByUsersEmail(email);
+
+        // Convert to WatchlistItemDTO
+        return watchlistEntries.stream()
+                .map(watchlistEntry -> {
+                    Product product = watchlistEntry.getProduct();
+
+                    WatchlistItemDTO dto = new WatchlistItemDTO();
+
+                    // Set watchlist-specific fields
+                    dto.setId(watchlistEntry.getWatchListId());
+                    dto.setTargetPrice(watchlistEntry.getTargetPrice());
+
+                    // Set product fields
+                    dto.setAsin(product.getASIN());
+                    dto.setProductName(product.getProductName());
+                    dto.setPrice(product.getProductPrice());
+                    dto.setImageURL(product.getImageURL());
+                    dto.setUrl(product.getLink());
+                    dto.setCategory(product.getCategory());
+                    dto.setBrand(product.getProductGroup()); // Using ProductGroup as Brand
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
     // Delete from watchlist by watchListId
     @Transactional
     public void deleteFromWatchList(Integer watchListId) {
-        WatchListTemporary watchList = watchListRepository.findById(watchListId)
+        WatchList watchList = watchListRepository.findById(watchListId)
                 .orElseThrow(() -> new IllegalArgumentException("Watchlist item not found with ID: " + watchListId));
 
         watchListRepository.delete(watchList);
@@ -144,7 +218,7 @@ public class WatchListTemporaryService {
         Product product = productRepository.findByASIN(asin)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with ASIN: " + asin));
 
-        WatchListTemporary watchList = watchListRepository.findByProductAndUsers(product, user)
+        WatchList watchList = watchListRepository.findByProductAndUsers(product, user)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Watchlist entry not found for user: " + email + " and product: " + asin));
 
@@ -153,8 +227,8 @@ public class WatchListTemporaryService {
 
     // Update target price
     @Transactional
-    public WatchListTemporary updateTargetPrice(Integer watchListId, Double newTargetPrice) {
-        WatchListTemporary watchList = watchListRepository.findById(watchListId)
+    public WatchList updateTargetPrice(Integer watchListId, Double newTargetPrice) {
+        WatchList watchList = watchListRepository.findById(watchListId)
                 .orElseThrow(() -> new IllegalArgumentException("Watchlist item not found with ID: " + watchListId));
 
         if (newTargetPrice == null || newTargetPrice <= 0) {

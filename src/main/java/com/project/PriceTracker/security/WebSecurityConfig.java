@@ -30,8 +30,8 @@ public class WebSecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/public/**",
-                                "api/watchlist/**",
+                        .requestMatchers("/login", "/register", "/public/**", "/price-history",
+                                "api/watchlist/**", "/api/test/**",
                                 "/api/products/price-history").permitAll()
                         .anyRequest().authenticated()
                 )

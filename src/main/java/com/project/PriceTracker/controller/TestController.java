@@ -2,7 +2,7 @@ package com.project.PriceTracker.controller;
 
 import com.project.PriceTracker.model.PriceHistory;
 import com.project.PriceTracker.model.Product;
-import com.project.PriceTracker.model.WatchListTemporary;
+import com.project.PriceTracker.model.WatchList;
 import com.project.PriceTracker.notification.NotificationService;
 import com.project.PriceTracker.repository.PriceHistoryRepository;
 import com.project.PriceTracker.repository.ProductRepository;
@@ -48,7 +48,7 @@ public class TestController {
             response.put("currentPrice", product.getProductPrice());
 
             // Get watchlist entries
-            List<WatchListTemporary> watchers = watchListRepository.findByProduct(product);
+            List<WatchList> watchers = watchListRepository.findByProduct(product);
             response.put("watchersCount", watchers.size());
 
             if (watchers.isEmpty()) {
@@ -58,7 +58,7 @@ public class TestController {
             }
 
             // Get first watcher's target price
-            WatchListTemporary firstWatcher = watchers.get(0);
+            WatchList firstWatcher = watchers.get(0);
             Double targetPrice = firstWatcher.getTargetPrice();
             response.put("targetPrice", targetPrice);
             response.put("watcherEmail", firstWatcher.getUsers().getEmail());
@@ -206,7 +206,7 @@ public class TestController {
             response.put("link", product.getLink());
 
             // Get watchlist info
-            List<WatchListTemporary> watchers = watchListRepository.findByProduct(product);
+            List<WatchList> watchers = watchListRepository.findByProduct(product);
             response.put("totalWatchers", watchers.size());
 
             // Detailed watcher info
@@ -250,7 +250,7 @@ public class TestController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            WatchListTemporary watchList = watchListRepository.findById(watchListId)
+            WatchList watchList = watchListRepository.findById(watchListId)
                     .orElseThrow(() -> new IllegalArgumentException("Watchlist entry not found"));
 
             watchList.resetNotification();
@@ -279,7 +279,7 @@ public class TestController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            WatchListTemporary watchList = watchListRepository.findById(watchListId)
+            WatchList watchList = watchListRepository.findById(watchListId)
                     .orElseThrow(() -> new IllegalArgumentException("Watchlist entry not found"));
 
             // Set last notified to 25 hours ago (past 24-hour cooldown)
@@ -311,7 +311,7 @@ public class TestController {
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-            List<WatchListTemporary> watchers = watchListRepository.findByProduct(product);
+            List<WatchList> watchers = watchListRepository.findByProduct(product);
 
             if (watchers.isEmpty()) {
                 response.put("status", "ERROR");
@@ -320,7 +320,7 @@ public class TestController {
             }
 
             // Reset all notifications
-            for (WatchListTemporary w : watchers) {
+            for (WatchList w : watchers) {
                 w.resetNotification();
                 w.setNotificationEnabled(true);
                 watchListRepository.save(w);
@@ -328,7 +328,7 @@ public class TestController {
 
             // Set price below all targets
             Double lowestTarget = watchers.stream()
-                    .map(WatchListTemporary::getTargetPrice)
+                    .map(WatchList::getTargetPrice)
                     .min(Double::compareTo)
                     .orElse(100.0);
 
@@ -381,7 +381,7 @@ public class TestController {
                 pMap.put("currentPrice", p.getProductPrice());
                 pMap.put("asin", p.getASIN());
 
-                List<WatchListTemporary> watchers = watchListRepository.findByProduct(p);
+                List<WatchList> watchers = watchListRepository.findByProduct(p);
                 pMap.put("watchersCount", watchers.size());
 
                 return pMap;

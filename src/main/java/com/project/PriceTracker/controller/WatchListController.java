@@ -1,9 +1,8 @@
 package com.project.PriceTracker.controller;
 
-import com.project.PriceTracker.dto.ProductDTO;
 import com.project.PriceTracker.dto.WatchListRequestDTO;
-import com.project.PriceTracker.model.WatchListTemporary;
-import com.project.PriceTracker.notification.NotificationService;
+import com.project.PriceTracker.dto.WatchlistItemDTO;
+import com.project.PriceTracker.model.WatchList;
 import com.project.PriceTracker.service.UserTemporaryService;
 import com.project.PriceTracker.service.WatchListTemporaryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +21,11 @@ public class WatchListController {
     private WatchListTemporaryService watchListTemporaryService;
     private UserTemporaryService userTemporaryService;
 
-    private NotificationService notificationService;
-
     @Autowired
     public WatchListController(WatchListTemporaryService watchListTemporaryService,
-                               UserTemporaryService userTemporaryService,
-                               NotificationService notificationService) {
+                               UserTemporaryService userTemporaryService) {
         this.watchListTemporaryService = watchListTemporaryService;
         this.userTemporaryService = userTemporaryService;
-        this.notificationService = notificationService;
     }
 
     // ========================================
@@ -54,14 +49,14 @@ public class WatchListController {
     }
 
     /**
-     * Get all products saved in user's watchlist
+     * Get all products saved in user's watchlist WITH target price
      * GET /api/watchlist/saved-products?email=user@example.com
      */
     @GetMapping("/saved-products")
-    public ResponseEntity<List<ProductDTO>> getProductSavedToWatchList(@RequestParam String email) {
+    public ResponseEntity<List<WatchlistItemDTO>> getProductSavedToWatchList(@RequestParam String email) {
         try {
-            List<ProductDTO> products = watchListTemporaryService.getSavedProducts(email);
-            return ResponseEntity.ok(products);
+            List<WatchlistItemDTO> watchlistItems = watchListTemporaryService.getSavedProductsWithWatchlistInfo(email);
+            return ResponseEntity.ok(watchlistItems);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(null);
@@ -72,39 +67,19 @@ public class WatchListController {
      * Delete item from watchlist
      * DELETE /api/watchlist/{watchListId}
      */
-//    @DeleteMapping("/{watchListId}")
-//    public ResponseEntity<String> deleteFromWatchList(@PathVariable Integer watchListId) {
-//        try {
-//            watchListTemporaryService.deleteFromWatchList(watchListId);
-//            return ResponseEntity.ok("Removed from watchlist");
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body("Watchlist item not found: " + e.getMessage());
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body("Failed to remove from watchlist: " + e.getMessage());
-//        }
-//    }
-//
-//    /**
-//     * Delete item from watchlist by email and ASIN
-//     * DELETE /api/watchlist/remove?email=user@example.com&asin=B08N5WRWNW
-//     */
-//    @DeleteMapping("/remove")
-//    public ResponseEntity<String> deleteFromWatchListByEmailAndAsin(
-//            @RequestParam String email,
-//            @RequestParam String asin) {
-//        try {
-//            watchListTemporaryService.deleteFromWatchListByEmailAndAsin(email, asin);
-//            return ResponseEntity.ok("Removed from watchlist");
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body("Watchlist item not found: " + e.getMessage());
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body("Failed to remove from watchlist: " + e.getMessage());
-//        }
-//    }
+    @DeleteMapping("/{watchListId}")
+    public ResponseEntity<String> deleteFromWatchList(@PathVariable Integer watchListId) {
+        try {
+            watchListTemporaryService.deleteFromWatchList(watchListId);
+            return ResponseEntity.ok("Removed from watchlist");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Watchlist item not found: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to remove from watchlist: " + e.getMessage());
+        }
+    }
 
     /**
      * Update target price for a watchlist item
@@ -117,7 +92,7 @@ public class WatchListController {
             @RequestBody Map<String, Double> request) {
         try {
             Double targetPrice = request.get("targetPrice");
-            WatchListTemporary updated = watchListTemporaryService.updateTargetPrice(watchListId, targetPrice);
+            WatchList updated = watchListTemporaryService.updateTargetPrice(watchListId, targetPrice);
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -125,87 +100,6 @@ public class WatchListController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to update target price: " + e.getMessage()));
-        }
-    }
-
-    // ========================================
-    // NOTIFICATION MANAGEMENT
-    // ========================================
-
-    /**
-     * Get all watchlist entries for a user (with notification details)
-     * GET /api/watchlist/user/{email}
-     */
-    @GetMapping("/user/{email}")
-    public ResponseEntity<List<WatchListTemporary>> getUserWatchList(@PathVariable String email) {
-        try {
-            List<WatchListTemporary> watchList = notificationService.getUserWatchList(email);
-            return ResponseEntity.ok(watchList);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
-    }
-
-    /**
-     * Enable/disable notifications for a watchlist entry
-     * PUT /api/watchlist/{watchListId}/notification/toggle
-     * Body: { "enabled": true }
-     */
-    @PutMapping("/{watchListId}/notification/toggle")
-    public ResponseEntity<?> toggleNotification(
-            @PathVariable Integer watchListId,
-            @RequestBody Map<String, Boolean> request) {
-        try {
-            boolean enabled = request.get("enabled");
-            WatchListTemporary updated = notificationService.toggleNotification(watchListId, enabled);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to toggle notification: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * Reset notification state (allows re-notification)
-     * POST /api/watchlist/{watchListId}/notification/reset
-     */
-    @PostMapping("/{watchListId}/notification/reset")
-    public ResponseEntity<?> resetNotification(@PathVariable Integer watchListId) {
-        try {
-            WatchListTemporary updated = notificationService.resetNotification(watchListId);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to reset notification: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * Update cooldown period for notifications
-     * PUT /api/watchlist/{watchListId}/notification/cooldown
-     * Body: { "cooldownHours": 48 }
-     */
-    @PutMapping("/{watchListId}/notification/cooldown")
-    public ResponseEntity<?> updateCooldown(
-            @PathVariable Integer watchListId,
-            @RequestBody Map<String, Integer> request) {
-        try {
-            Integer cooldownHours = request.get("cooldownHours");
-            WatchListTemporary updated = notificationService.updateCooldown(watchListId, cooldownHours);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to update cooldown: " + e.getMessage()));
         }
     }
 }

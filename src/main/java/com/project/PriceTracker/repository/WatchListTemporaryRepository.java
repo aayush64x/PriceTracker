@@ -2,7 +2,7 @@ package com.project.PriceTracker.repository;
 
 import com.project.PriceTracker.model.Product;
 import com.project.PriceTracker.model.Users;
-import com.project.PriceTracker.model.WatchListTemporary;
+import com.project.PriceTracker.model.WatchList;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface WatchListTemporaryRepository extends JpaRepository<WatchListTemporary, Integer> {
+public interface WatchListTemporaryRepository extends JpaRepository<WatchList, Integer> {
 
     // ========================================
     // FIND METHODS
@@ -19,32 +19,32 @@ public interface WatchListTemporaryRepository extends JpaRepository<WatchListTem
     /**
      * Find all watchlist entries for a product
      */
-    List<WatchListTemporary> findByProduct(Product product);
+    List<WatchList> findByProduct(Product product);
 
     /**
      * Find all watchlist entries for a user
      */
-    List<WatchListTemporary> findByUsers(Users user);
+    List<WatchList> findByUsers(Users user);
 
     /**
      * Find all watchlist entries for a user by email
      */
-    List<WatchListTemporary> findByUsersEmail(String email);
+    List<WatchList> findByUsersEmail(String email);
 
     /**
      * Find watchlist entry by product and user (for unique constraint check)
      */
-    Optional<WatchListTemporary> findByProductAndUsers(Product product, Users user);
+    Optional<WatchList> findByProductAndUsers(Product product, Users user);
 
     /**
      * Find enabled watchlist entries for a product
      */
-    List<WatchListTemporary> findByProductAndNotificationEnabledTrue(Product product);
+    List<WatchList> findByProductAndNotificationEnabledTrue(Product product);
 
     /**
      * Find all enabled watchlist entries
      */
-    List<WatchListTemporary> findByNotificationEnabledTrue();
+    List<WatchList> findByNotificationEnabledTrue();
 
     // ========================================
     // DELETE METHODS
